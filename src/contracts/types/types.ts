@@ -13,6 +13,10 @@ export interface AtomicState {
   };
   canEvolve: boolean;
   evolve: string;
+  votes: {
+    addresses: string[];
+    status: number;
+  };
 }
 
 export interface AtomicAction {
@@ -58,6 +62,8 @@ export type AtomicFunction =
   | 'approve'
   | 'totalSupply'
   | 'evolve'
-  | 'postMessage';
+  | 'postMessage'
+  | 'upVoteMessage'
+  | 'downVoteMessage';
 
 export type ContractResult = { state: AtomicState } | { result: AtomicResult };

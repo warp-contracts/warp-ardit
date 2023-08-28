@@ -3,6 +3,7 @@ import { allowance, approve } from './actions/allowances';
 import { evolve } from './actions/evolve';
 import { transfer, transferFrom } from './actions/transfers';
 import { ContractResult, AtomicAction, AtomicResult, AtomicState } from './types/types';
+import { downVoteMessage, upVoteMessage } from './actions/voting';
 
 declare const ContractError;
 
@@ -24,6 +25,10 @@ export async function handle(state: AtomicState, action: AtomicAction): Promise<
       return await transfer(state, action);
     case 'transferFrom':
       return await transferFrom(state, action);
+    case 'upVoteMessage':
+      return await upVoteMessage(state, action);
+    case 'downVoteMessage':
+      return await downVoteMessage(state, action);
       default:
       throw new ContractError(`No function supplied or function not recognised: "${input.function}"`);
   }

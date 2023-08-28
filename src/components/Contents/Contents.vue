@@ -46,7 +46,7 @@
             </div>
           </div>
           <div class="status">
-            {{ '-' }}
+            {{ state.state.votes.status }}
           </div>
         </div>
         <div></div>
@@ -85,7 +85,30 @@ export default Vue.extend({
   },
   methods: {
     async vote(contractId: string, votes: any, interaction: string) {
-        // TODO: implement vote
+      if (votes.addresses.includes(this.walletAddress)) {
+        this.$toasted.error('You already voted for this content.', {
+          duration: 3000,
+        });
+        return;
+      }
+      this.$toasted.show('Processing...');
+      const contract = this.warp.contract(contractId).connect(this.wallet);
+      const tx = await contract.writeInteraction({
+        function: interaction,
+      });
+      let { cachedValue } = await contract.readState();
+      if (cachedValue) {
+        this.$toasted.clear();
+        this.$toasted.global.success('Processed!');
+        this.$toasted.global.close(
+          `<div>Interaction id: <a href="https://sonar.warp.cc/#/app/interaction/${tx.originalTxId}" target="_blank">${tx.originalTxId}</a></div>`
+        );
+      }
+      const newStatus = cachedValue.state.votes.status;
+      const newAddresses = cachedValue.state.votes.addresses;
+      const contentElement = this.contents.find((c) => c.contract_tx_id == contractId);
+      contentElement.state.votes.status = newStatus;
+      contentElement.state.votes.addresses = newAddresses;
     },
     async upVote(contractId: string, votes: any) {
       await this.vote(contractId, votes, 'upVoteMessage');
